@@ -11,8 +11,8 @@ class Task(models.Model):
 
     assigned_to = models.ForeignKey(User,on_delete=models.SET_NULL,null=True, blank=True)
 
-    worked_hours = models.DecimalField(max_digits=5, decimal_places=2)
-    completion_report = models.TextField(blank=True, null=True)
+    worked_hours = models.DecimalField(max_digits=5, decimal_places=2,null=True,blank=True)
+    completion_report = models.TextField(null=True,blank=True)
     is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Manage Roles{% endblock %}
+{% block content %}
+<h2>Assign Roles</h2>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">User</label>
+        <select name="user_id" class="form-select">
+            {% for user in users %}
+            <option value="{{ user.id }}">{{ user.username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select name="role" class="form-select">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="superadmin">SuperAdmin</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Assign Role</button>
+</form>
+{% endblock %}
