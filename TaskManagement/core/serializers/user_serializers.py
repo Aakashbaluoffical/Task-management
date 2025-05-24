@@ -26,6 +26,24 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(username = value).exists():
             raise serializers.ValidationError({"error": "username already exists."}, status=400)
         return value
+
+    def validate_role(self, value):
+        request = self.context.get('request')
+        method = request.method if request else None
+
+        if value not in ['admin', 'user', 'superadmin']:
+            raise serializers.ValidationError({"error": "Invalid role."}, status=400)
+        if value == 'superadmin':
+            raise serializers.ValidationError({"error": "Only superadmins can create users."}, status=400)
+        if value == 'admin' and self.context['request'].user.role != 'superadmin':
+            raise serializers.ValidationError({"error": "Only superadmins can create admins."}, status=400)
+        
+        
+
+        return value
+    
+
+
     
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])  # hash password manually

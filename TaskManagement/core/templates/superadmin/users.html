@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<h2>All Users</h2>
+
+<!-- Create User Form -->
+<form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-3">
+            <input name="username" placeholder="Username" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <input type="email" name="email" placeholder="Email" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+            <input type="password" name="password" placeholder="Password" class="form-control" required>
+        </div>
+        {% if request.user.role == 'superadmin' %}
+        <div class="col-md-2">
+            <select name="role" class="form-select">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        {% else %}
+        <input type="hidden" name="role" value="user">
+        {% endif %}
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-success">Create</button>
+        </div>
+    </div>
+</form>
+
+<!-- User Table -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{% url 'delete_user' user.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

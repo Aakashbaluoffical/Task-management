@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<div class="text-center">
+    <h1 class="display-4">Welcome to the Task Management Panel</h1>
+    <p class="lead">Manage your team tasks, track reports, and stay organized.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Login</a>
+</div>
+{% endblock %}

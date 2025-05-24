@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}SuperAdmin Dashboard{% endblock %}
+{% block content %}
+<h2>SuperAdmin Dashboard</h2>
+<ul>
+    <li><a href="{% url 'superadmin_users' %}">Manage Users</a></li>
+    <li><a href="{% url 'superadmin_roles' %}">Manage Roles</a></li>
+    <li><a href="{% url 'superadmin_tasks' %}">View All Tasks</a></li>
+</ul>
+{% endblock %}
