@@ -1,10 +1,11 @@
+
 {% extends 'base.html' %}
 {% block title %}SuperAdmin Dashboard{% endblock %}
 {% block content %}
-<h2>SuperAdmin Dashboard</h2>
-<ul>
-    <li><a href="{% url 'superadmin_users' %}">Manage Users</a></li>
-    <li><a href="{% url 'superadmin_roles' %}">Manage Roles</a></li>
-    <li><a href="{% url 'superadmin_tasks' %}">View All Tasks</a></li>
-</ul>
+<h2 class="mb-4">SuperAdmin Dashboard</h2>
+<div class="nav nav-pills flex-column flex-sm-row">
+    <a class="flex-sm-fill text-sm-center nav-link bg-primary text-white mb-2 me-sm-2" href="{% url 'superadmin_users' %}">Manage Users</a>
+    <!-- <a class="flex-sm-fill text-sm-center nav-link bg-success text-white mb-2 me-sm-2" href="{% url 'superadmin_roles' %}">Manage Roles</a> -->
+    <a class="flex-sm-fill text-sm-center nav-link bg-info text-white mb-2" href="{% url 'superadmin_tasks' %}">View All Tasks</a>
+</div>
 {% endblock %}

@@ -2,30 +2,141 @@
 {% block title %}All Tasks{% endblock %}
 {% block content %}
 <h2>All Tasks</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Assigned To</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.title }}</td>
-            <td>{{ task.assigned_to.username }}</td>
-            <td>{{ task.status }}</td>
-            <td>
-                {% if task.status == 'completed' %}
-                    <a href="{% url 'task_report_detail' task.id %}">View Report</a>
+
+<!-- Filter Form -->
+<div class="card mb-3">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <span>Task Filter</span>
+        <form method="get" class="d-flex align-items-center">
+            <label for="status_filter" class="text-white me-2 mb-0">Filter by Status:</label>
+            <select name="status" id="status_filter" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Create Task Form -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">Create New Task</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <input type="text" name="title" class="form-control" placeholder="Title" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="description" class="form-control" placeholder="Description" required>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="due_date" class="form-control" required>
+                </div>
+                <div class="col-md-2">
+                    <select name="assigned_to" class="form-select" required>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Task Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Assigned To</th>
+                    <th>Worked Hours</th>
+                    <th>Status</th>
+                    <th>Report</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.due_date }}</td>
+                    <td>{{ task.assigned_to.username }}</td>
+                    <td>{{ task.worked_hours }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if task.status == 'completed' %}bg-success
+                            {% elif task.status == 'in_progress' %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}">
+                            {{ task.status|upper }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if task.status == 'completed' %}
+                            <a href="{% url 'task_report_detail' task.id %}" class="btn btn-sm btn-outline-primary">View Report</a>
+                        {% else %}
+                            <span class="text-muted">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination controls -->
+<div class="mt-3">
+    {% if tasks.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if tasks.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tasks.previous_page_number }}&status={{ request.GET.status }}">Previous</a>
+                    </li>
                 {% else %}
-                    <span class="text-muted">Not Available</span>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
                 {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+                {% for num in tasks.paginator.page_range %}
+                    {% if tasks.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&status={{ request.GET.status }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if tasks.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tasks.next_page_number }}&status={{ request.GET.status }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
 {% endblock %}

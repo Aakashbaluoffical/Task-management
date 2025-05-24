@@ -3,58 +3,142 @@
 {% block content %}
 <h2>All Users</h2>
 
-<!-- Create User Form -->
-<form method="post" class="mb-4">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-md-3">
-            <input name="username" placeholder="Username" class="form-control" required>
-        </div>
-        <div class="col-md-3">
-            <input type="email" name="email" placeholder="Email" class="form-control" required>
-        </div>
-        <div class="col-md-3">
-            <input type="password" name="password" placeholder="Password" class="form-control" required>
-        </div>
-        {% if request.user.role == 'superadmin' %}
-        <div class="col-md-2">
-            <select name="role" class="form-select">
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
-        {% else %}
-        <input type="hidden" name="role" value="user">
-        {% endif %}
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-success">Create</button>
-        </div>
-    </div>
-</form>
+<!-- =================================================================== -->
+<!--                       Alert box -->
+<!-- =================================================================== -->
 
-<!-- User Table -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Role</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in users %}
-        <tr>
-            <td>{{ user.username }}</td>
-            <td>{{ user.role }}</td>
-            <td>
-                <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-warning">Edit</a>
-                <form action="{% url 'delete_user' user.id %}" method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  
+  <script>
+    setTimeout(function() {
+      let alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        // Bootstrap 5 fade-out effect
+        alert.classList.remove('show');
+        alert.classList.add('fade');
+        setTimeout(() => alert.remove(), 500); // remove from DOM after fade
+      });
+    }, 5000); // 5 seconds
+  </script>
+{% endif %}
+
+<!-- =================================================================== -->
+<!--                       Alert box -->
+<!-- =================================================================== -->
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">Create User</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-3">
+                    <input name="username" placeholder="Username" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="password" name="password" placeholder="Password" class="form-control" required>
+                </div>
+                {% if request.user.role == 'superadmin' %}
+                <div class="col-md-2">
+                    <select name="role" class="form-select">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                {% else %}
+                <input type="hidden" name="role" value="user">
+                {% endif %}
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <span>User List</span>
+        <form method="get" class="d-flex align-items-center">
+            <label for="role_filter" class="text-white me-2 mb-0">Filter:</label>
+            <select name="role" id="role_filter" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="user" {% if request.GET.role == 'user' %}selected{% endif %}>User</option>
+                <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="superadmin" {% if request.GET.role == 'superadmin' %}selected{% endif %}>SuperAdmin</option>
+            </select>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                        <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <form action="{% url 'delete_user' user.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination controls -->
+<div class="mt-3">
+    {% if users.has_other_pages %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% if users.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.previous_page_number }}&role={{ request.GET.role }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+
+                {% for num in users.paginator.page_range %}
+                    {% if users.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&role={{ request.GET.role }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ users.next_page_number }}&role={{ request.GET.role }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
 {% endblock %}
+
+

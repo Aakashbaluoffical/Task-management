@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Admin Dashboard{% endblock %}
 {% block content %}
-<h2>Admin Dashboard</h2>
-<ul>
-    <li><a href="{% url 'admin_tasks' %}">Manage My Users' Tasks</a></li>
-</ul>
+<h2 class="mb-4">Admin Dashboard</h2>
+<div class="nav nav-pills flex-column flex-sm-row">
+    <a class="flex-sm-fill text-sm-center nav-link bg-info text-white mb-2" href="{% url 'admin_tasks' %}">View All Tasks</a>
+</div>
 {% endblock %}
