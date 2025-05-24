@@ -1,10 +1,38 @@
 {% extends 'base.html' %}
 {% block title %}Task Report{% endblock %}
+
 {% block content %}
-<h2>Task Report</h2>
-<p><strong>Title:</strong> {{ task.title }}</p>
-<p><strong>Assigned To:</strong> {{ task.assigned_to.username }}</p>
-<p><strong>Status:</strong> {{ task.status }}</p>
-<p><strong>Completion Report:</strong> {{ task.completion_report }}</p>
-<p><strong>Worked Hours:</strong> {{ task.worked_hours }}</p>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Task Report</h4>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h5 class="card-title">{{ task.title }}</h5>
+                <p class="text-muted mb-1">Assigned to: <strong>{{ task.assigned_to.username }}</strong></p>
+                <p class="text-muted mb-1">Status: 
+                    <span class="badge 
+                        {% if task.status == 'completed' %}bg-success
+                        {% elif task.status == 'in_progress' %}bg-warning text-dark
+                        {% else %}bg-secondary{% endif %}">
+                        {{ task.status|capfirst }}
+                    </span>
+                </p>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <h6>Completion Report</h6>
+                <p>{{ task.completion_report|default:"—" }}</p>
+            </div>
+
+            <div>
+                <h6>Worked Hours</h6>
+                <p>{{ task.worked_hours|default:"—" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

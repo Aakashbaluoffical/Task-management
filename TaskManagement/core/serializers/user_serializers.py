@@ -16,15 +16,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         if len(value) < 8:
-            raise serializers.ValidationError({"error": "Password must be at least 8 characters long."}, status=400)
+            raise serializers.ValidationError({"error": "Password must be at least 8 characters long."})
         return value
 
     def validate_username(self, value):
         if not value:
-            raise serializers.ValidationError({"error": "username is required."}, status=400)
+            raise serializers.ValidationError({"error": "username is required."})
         
         if User.objects.filter(username = value).exists():
-            raise serializers.ValidationError({"error": "username already exists."}, status=400)
+            raise serializers.ValidationError({"error": "username already exists."})
         return value
 
     def validate_role(self, value):
@@ -32,11 +32,10 @@ class UserSerializer(serializers.ModelSerializer):
         method = request.method if request else None
 
         if value not in ['admin', 'user', 'superadmin']:
-            raise serializers.ValidationError({"error": "Invalid role."}, status=400)
-        if value == 'superadmin':
-            raise serializers.ValidationError({"error": "Only superadmins can create users."}, status=400)
-        if value == 'admin' and self.context['request'].user.role != 'superadmin':
-            raise serializers.ValidationError({"error": "Only superadmins can create admins."}, status=400)
+            raise serializers.ValidationError({"error": "Invalid role."})
+        if value != 'user':
+            raise serializers.ValidationError({"error": "Only superadmins can create users."})
+        
         
         
 

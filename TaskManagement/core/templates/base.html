@@ -8,9 +8,32 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Task Panel</a>
-            <div class="d-flex">
-                <a href="{% url 'login' %}" class="btn btn-outline-light">Login</a>
+            <a class="navbar-brand"
+                href="{% if request.user.is_authenticated %}
+                            {% if request.user.role == 'admin' %}
+                                {% url 'admin_dashboard' %}
+                            {% elif request.user.role == 'superadmin' %}
+                                {% url 'superadmin_dashboard' %}
+                            {% else %}
+                                /
+                            {% endif %}
+                        {% else %}
+                            /
+                        {% endif %}">
+                    Task Panel
+                </a>
+            <div class="d-flex align-items-center gap-2">
+                {% if request.user.is_authenticated and request.path != '/login/' %}
+                    <span class="badge 
+                        {% if request.user.role == 'admin' %}bg-warning
+                        {% elif request.user.role == 'superadmin' %}bg-primary
+                        {% else %}bg-info{% endif %} text-dark">
+                        {{ request.user.role|upper }}
+                    </span>
+                    <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
+                {% elif request.path != '/login/' %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light">Login</a>
+                {% endif %}
             </div>
         </div>
     </nav>

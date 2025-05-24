@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Edit Task</h3>
+
+    {% if errors %}
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" onsubmit="return validateForm();">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control"
+                    value="{{ form_data.title|default:task.title }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Assigned To</label>
+                <select name="assigned_to" class="form-select">
+                    {% for user in users %}
+                    <option value="{{ user.id }}" {% if user.id == task.assigned_to.id %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Due Date</label>
+                <input type="date" name="due_date" class="form-control"
+                    value="{{ form_data.due_date|default:task.due_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select" id="statusSelect">
+                    {% for option in status_options %}
+                    <option value="{{ option }}" {% if task.status == option %}selected{% endif %}>{{ option|capfirst }}</option>
+                    {% endfor %}
+                </select>
+
+
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control"
+                rows="3">{{ form_data.description|default:task.description }}</textarea>
+        </div>
+
+        <div class="row mb-3" id="completionFields">
+            <div class="col-md-6">
+                <label class="form-label">Worked Hours</label>
+                <input type="number" step="0.1" name="worked_hours" class="form-control"
+                    value="{{ form_data.worked_hours|default:task.worked_hours }}" id="workedHours" disabled>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Completion Report</label>
+                <textarea name="completion_report" class="form-control" rows="2"
+                        id="completionReport" disabled>{{ form_data.completion_report|default:task.completion_report }}</textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Task</button>
+        <a href="{% url 'superadmin_tasks' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const statusSelect = document.getElementById('statusSelect');
+    const workedHours = document.getElementById('workedHours');
+    const completionReport = document.getElementById('completionReport');
+
+    function toggleCompletionFields() {
+        const isCompleted = statusSelect.value === 'completed';
+        workedHours.disabled = !isCompleted;
+        completionReport.disabled = !isCompleted;
+    }
+
+    statusSelect.addEventListener('change', toggleCompletionFields);
+    toggleCompletionFields(); // Initial check on page load
+});
+</script>
+
+
+{% endblock %}

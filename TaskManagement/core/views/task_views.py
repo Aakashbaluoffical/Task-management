@@ -90,7 +90,7 @@ class TaskListModification(APIView):
         ALLOWED_FIELDS = {
                 'superadmin': None,  # None = all allowed
                 'admin': ['status', 'due_date', 'assigned_to'],
-                'user': ['status', 'worked_hours'],
+                'user': ['status', 'worked_hours','completion_report'],
             }
         role = request.user.role
 
